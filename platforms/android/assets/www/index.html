@@ -22,15 +22,17 @@
                 if(DBStorage.version == "") {
                     DBStorage.changeVersion("",DBVersion,
                     function(tx) {
-                        tx.executeSql("CREATE TABLE IF NOT EXISTS DEMO (ROLLID INTEGER PRIMARY KEY AUTOINCREMENT, ROLLNAME TEXT, ROLLDETAIL TEXT)");
+                        tx.executeSql("CREATE TABLE IF NOT EXISTS DEMO (ROLLID INTEGER PRIMARY KEY AUTOINCREMENT, ROLLNAME TEXT, ROLLDETAIL TEXT, ROLLINFO TEXT)");
                         
-                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'ABHISHEK', 'This is ABHSIHEK')");
-                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'RAJESJ', 'This is RAJESH')");
-                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'PATEL', 'This is PATEL')");
+                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'ABHISHEK', 'This is ABHSIHEK', 'After1')");
+                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'RAJESJ', 'This is RAJESH', 'After2')");
+                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'PATEL', 'This is PATEL', 'After3')");
 
-                    }, function(jsonError){
+                    }, function(jsonError) {
                         console.log("Error while creating table : ");
                         console.log(jsonError);
+                    }, function(){
+                        alert("DB Created successfully");
                     });
                 } else if(parseInt(DBStorage.version) == 1) {
                     DBStorage.changeVersion("1",DBVersion,
