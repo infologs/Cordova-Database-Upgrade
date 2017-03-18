@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="format-detection" content="telephone=no">
+        <title>Hello World</title>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+
+            var DBVersion="2";
+
+            var DBStorage = window.openDatabase("DBStorage.db", "", "Databse Storage", 200000);
+
+            document.addEventListener("deviceready", onDeviceReady, false);
+
+            function onDeviceReady() {
+                alert("Calling values");
+            }
+
+            function GenerateUpgradeDB() {
+
+                if(DBStorage.version == "") {
+                    DBStorage.changeVersion("",DBVersion,
+                    function(tx) {
+                        tx.executeSql("CREATE TABLE IF NOT EXISTS DEMO (ROLLID INTEGER PRIMARY KEY AUTOINCREMENT, ROLLNAME TEXT, ROLLDETAIL TEXT)");
+                        
+                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'ABHISHEK', 'This is ABHSIHEK')");
+                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'RAJESJ', 'This is RAJESH')");
+                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'PATEL', 'This is PATEL')");
+
+                    }, function(jsonError){
+                        console.log("Error while creating table : ");
+                        console.log(jsonError);
+                    });
+                } else if(parseInt(DBStorage.version) == 1) {
+                    DBStorage.changeVersion("1",DBVersion,
+                    function(tx) {
+                        tx.executeSql("ALTER TABLE DEMO ADD COLUMN ROLLINFO TEXT");
+                        tx.executeSql("INSERT INTO DEMO VALUES (NULL, 'EXTRA', 'This is EXTRA', 'HOLD THE VALUE')");
+                    }, function(jsonError){
+                        console.log("Erro rhwile Upgradeed");
+                        console.log(jsonError);
+                    }, function(){
+                        alert("DB Upgradeed successfully.");
+                    });
+                } else {
+                    alert("DB is upto date.");
+                }
+            }
+
+            function DisplayColumn() {
+                var DBStorageTemp = window.openDatabase("DBStorage.db", DBVersion, "Databse Storage", 200000);
+                DBStorageTemp.transaction(function(tx){
+                    tx.executeSql("SELECT * FROM DEMO", [], function(tx, result) {
+                        if(result) {
+                            document.getElementById("dvData").innerHTML = "";
+                            if(result.rows.length > 0){
+                                var strData = "<table width='100%' border='1' cellpadding='5' cellspacing='5'><tr><th>ROLLNO</th><th>ROLL NAME</th><th>ROLL DETAIL</th><th>ROLL INFO</th></tr>";
+                                for (var i = 0; i <  result.rows.length ; i++) {
+                                    strData += "<tr>";
+                                    strData += "<td>" + result.rows.item(i).ROLLID + "</td>";
+                                    strData += "<td>" + result.rows.item(i).ROLLNAME + "</td>";
+                                    strData += "<td>" + result.rows.item(i).ROLLDETAIL + "</td>";
+
+                                    // if the ROLLINFO is available then add it to the table
+                                    if(result.rows.item(i).ROLLINFO) {
+                                        strData += "<td>" + result.rows.item(i).ROLLINFO + "</td>";
+                                    }
+                                    strData += "</tr>"
+                                }
+                                strData += "</table>";
+                                document.getElementById("dvData").innerHTML = strData;
+                            }                            
+                        }
+                    }, function(jsonError){
+                        console.log("error while fetching data");
+                        console.log(jsonError);
+                    })
+                }, 
+                function(jsonError){
+                    console.log("Error whie making display transaction");
+                    console.log(jsonError);
+                }, 
+                function(){
+                    alert("Transaction is success.");
+                })
+
+            }
+        </script>
+    </head>
+    <body>
+        <br/>
+        <input type="button" value="Generate Database" onclick="GenerateUpgradeDB()" />
+        <input type="button" value="Display Values" onclick="DisplayColumn()" />        
+        <br/>
+        <div id="dvData"></div>
+    </body>
+</html>
